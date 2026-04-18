@@ -1,7 +1,153 @@
-✦ LIVE FLIGHT STATUS
-FlightPulse
-// inserisci il numero di volo — risultati in tempo reale
-
-CERCA →
-Formato: codice IATA compagnia + numero volo AZ203 · FR1426 · VY1234 · LH456
-FlightPulse · dati in tempo reale
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlightPulse</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0f;color:#e8e8f0;font-family:'Syne',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 1rem}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+header{position:relative;z-index:1;text-align:center;padding:3rem 0 2rem;width:100%;max-width:640px}
+.logo{font-size:.7rem;font-family:'DM Mono',monospace;letter-spacing:.4em;color:#00e5ff;text-transform:uppercase;margin-bottom:.5rem;opacity:.8}
+h1{font-size:clamp(2.5rem,8vw,4rem);font-weight:800;letter-spacing:-.03em;line-height:1;background:linear-gradient(135deg,#fff 30%,#00e5ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tagline{margin-top:.75rem;font-family:'DM Mono',monospace;font-size:.78rem;color:#555570;letter-spacing:.05em}
+main{position:relative;z-index:1;width:100%;max-width:640px;display:flex;flex-direction:column;gap:1.25rem;padding-bottom:4rem}
+.search-box{display:flex;gap:.75rem;align-items:stretch}
+.flight-input{flex:1;background:#11111a;border:1px solid #1e1e2e;border-radius:12px;padding:1.1rem 1.25rem;font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:.12em;color:#e8e8f0;outline:none;text-transform:uppercase;transition:border-color .2s,box-shadow .2s;caret-color:#00e5ff}
+.flight-input::placeholder{color:#555570;font-weight:400;letter-spacing:.05em;font-size:1rem}
+.flight-input:focus{border-color:#00e5ff;box-shadow:0 0 0 2px rgba(0,229,255,.12)}
+.search-btn{background:#00e5ff;color:#000;border:none;border-radius:12px;padding:0 1.5rem;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.08em;cursor:pointer;text-transform:uppercase;transition:background .2s,transform .1s;white-space:nowrap}
+.search-btn:hover{background:#33ebff}
+.search-btn:active{transform:scale(.97)}
+.search-btn:disabled{background:#555570;cursor:not-allowed}
+.hint{font-family:'DM Mono',monospace;font-size:.68rem;color:#555570;text-align:center;letter-spacing:.05em;line-height:1.7}
+.hint span{color:#00e5ff;opacity:.7}
+.loader{display:none;flex-direction:column;align-items:center;gap:1rem;padding:2.5rem;background:#11111a;border:1px solid #1e1e2e;border-radius:16px}
+.loader.active{display:flex}
+.loader-ring{width:44px;height:44px;border:2px solid #1e1e2e;border-top-color:#00e5ff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-family:'DM Mono',monospace;font-size:.75rem;color:#555570;letter-spacing:.15em;text-transform:uppercase;animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.4}50%{opacity:1}}
+.result-card{display:none;background:#11111a;border:1px solid #1e1e2e;border-radius:16px;overflow:hidden;animation:slideUp .4s cubic-bezier(.16,1,.3,1)}
+.result-card.active{display:block}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.status-banner{padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1e1e2e}
+.status-badge{display:flex;align-items:center;gap:.6rem;font-size:.75rem;font-family:'DM Mono',monospace;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-on-time .status-dot{background:#39ff14;box-shadow:0 0 8px #39ff14}
+.status-on-time{color:#39ff14}
+.status-delayed .status-dot{background:#ffbe0b;box-shadow:0 0 8px #ffbe0b}
+.status-delayed{color:#ffbe0b}
+.status-cancelled .status-dot{background:#ff4d6d;box-shadow:0 0 8px #ff4d6d}
+.status-cancelled{color:#ff4d6d}
+.status-active .status-dot{background:#00e5ff;box-shadow:0 0 8px #00e5ff;animation:pdot 1.5s ease-in-out infinite}
+.status-active{color:#00e5ff}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
+.fnum{font-family:'DM Mono',monospace;font-size:.8rem;color:#555570;letter-spacing:.15em}
+.flight-header{padding:1.5rem 1.5rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.airport-block{text-align:center;flex:1}
+.airport-code{font-size:2.5rem;font-weight:800;letter-spacing:-.02em;line-height:1}
+.airport-city{font-family:'DM Mono',monospace;font-size:.65rem;color:#555570;letter-spacing:.1em;margin-top:.3rem;text-transform:uppercase}
+.flight-arrow{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.3rem;color:#555570;font-size:.6rem;font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
+.arrow-line{width:80px;height:1px;background:linear-gradient(90deg,#1e1e2e,#00e5ff,#1e1e2e);position:relative}
+.arrow-line::after{content:'▶';position:absolute;right:-6px;top:50%;transform:translateY(-50%);color:#00e5ff;font-size:.5rem}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1e1e2e;border-top:1px solid #1e1e2e}
+.data-cell{background:#11111a;padding:1rem 1.25rem}
+.data-cell.full{grid-column:1/-1}
+.cell-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;color:#555570;text-transform:uppercase;margin-bottom:.4rem}
+.cell-value{font-size:1rem;font-weight:600;color:#e8e8f0;letter-spacing:-.01em}
+.cell-value.hl{color:#00e5ff}
+.cell-value.warn{color:#ffbe0b}
+.cell-value.ok{color:#39ff14}
+.cell-value.danger{color:#ff4d6d}
+.cell-sub{font-family:'DM Mono',monospace;font-size:.68rem;color:#555570;margin-top:.2rem}
+.delay-bar-wrap{height:3px;background:#1e1e2e;border-radius:2px;overflow:hidden;margin-top:.6rem}
+.delay-bar{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.error-card{display:none;background:#11111a;border:1px solid rgba(255,77,109,.3);border-radius:16px;padding:1.5rem;text-align:center;animation:slideUp .3s ease}
+.error-card.active{display:block}
+.error-icon{font-size:2rem;margin-bottom:.75rem}
+.error-title{font-weight:700;color:#ff4d6d;margin-bottom:.4rem}
+.error-msg{font-family:'DM Mono',monospace;font-size:.75rem;color:#555570;line-height:1.6}
+footer{position:relative;z-index:1;font-family:'DM Mono',monospace;font-size:.65rem;color:#555570;text-align:center;padding-bottom:2rem;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">✦ Live Flight Status</div>
+<h1>FlightPulse</h1>
+<p class="tagline">// inserisci il numero di volo — risultati in tempo reale</p>
+</header>
+<main>
+<div class="search-box">
+<input class="flight-input" id="fi" type="text" placeholder="es. FR1234" maxlength="8" autocomplete="off" autocorrect="off" spellcheck="false"/>
+<button class="search-btn" id="sb" onclick="go()">Cerca →</button>
+</div>
+<p class="hint">Formato: codice IATA compagnia + numero volo<br><span>AZ203 · FR1426 · VY1234 · LH456</span></p>
+<div class="loader" id="loader"><div class="loader-ring"></div><span class="loader-text">Interrogo i radar...</span></div>
+<div class="result-card" id="rc">
+<div class="status-banner">
+<div class="status-badge" id="sb2"><div class="status-dot"></div><span id="st">—</span></div>
+<span class="fnum" id="fd">—</span>
+</div>
+<div class="flight-header">
+<div class="airport-block"><div class="airport-code" id="dc">—</div><div class="airport-city" id="dci">—</div></div>
+<div class="flight-arrow"><div class="arrow-line"></div><span>diretto</span></div>
+<div class="airport-block"><div class="airport-code" id="ac2">—</div><div class="airport-city" id="aci">—</div></div>
+</div>
+<div class="data-grid">
+<div class="data-cell"><div class="cell-label">Partenza Schedulata</div><div class="cell-value" id="ds">—</div></div>
+<div class="data-cell"><div class="cell-label">Partenza Effettiva</div><div class="cell-value" id="da">—</div><div class="cell-sub" id="dds"></div></div>
+<div class="data-cell"><div class="cell-label">Arrivo Schedulato</div><div class="cell-value" id="as2">—</div></div>
+<div class="data-cell"><div class="cell-label">Arrivo Stimato</div><div class="cell-value" id="ae">—</div></div>
+<div class="data-cell"><div class="cell-label">Compagnia</div><div class="cell-value hl" id="al">—</div></div>
+<div class="data-cell"><div class="cell-label">Aeromobile</div><div class="cell-value" id="air">—</div></div>
+<div class="data-cell"><div class="cell-label">Gate</div><div class="cell-value hl" id="gt">—</div></div>
+<div class="data-cell"><div class="cell-label">Terminal</div><div class="cell-value" id="tm">—</div></div>
+<div class="data-cell full"><div class="cell-label">Ritardo</div><div class="cell-value" id="dv">—</div><div class="delay-bar-wrap"><div class="delay-bar" id="db2"></div></div></div>
+</div>
+</div>
+<div class="error-card" id="ec"><div class="error-icon">⚠</div><div class="error-title" id="et">Errore</div><div class="error-msg" id="em">—</div></div>
+</main>
+<footer>FlightPulse · dati in tempo reale</footer>
+<script>
+document.getElementById('fi').addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+function ft(s){if(!s)return'—';try{return new Date(s).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})}catch{return'—'}}
+function dm(a,b){if(!a||!b)return null;try{return Math.round((new Date(b)-new Date(a))/60000)}catch{return null}}
+function si(f){const s=(f.flight_status||'').toLowerCase();if(s==='landed')return{cls:'status-on-time',label:'ATTERRATO'};if(s==='active'||s==='en-route')return{cls:'status-active',label:'IN VOLO'};if(s==='cancelled')return{cls:'status-cancelled',label:'CANCELLATO'};if(s==='delayed')return{cls:'status-delayed',label:'IN RITARDO'};if(s==='scheduled'){const d=dm(f.departure?.scheduled,f.departure?.estimated);return d&&d>0?{cls:'status-delayed',label:'IN RITARDO'}:{cls:'status-on-time',label:'PUNTUALE'}}return{cls:'status-on-time',label:s.toUpperCase()||'SCONOSCIUTO'}}
+function setDelay(m){const el=document.getElementById('dv'),bar=document.getElementById('db2');if(m===null||isNaN(m)){el.textContent='—';return}if(m<=0){el.textContent='Nessun ritardo';el.className='cell-value ok';bar.style.width='0%';bar.style.background='#39ff14'}else{el.textContent=`+${m} min`;el.className=`cell-value ${m<30?'warn':'danger'}`;bar.style.background=m<30?'#ffbe0b':'#ff4d6d';bar.style.width='0%';setTimeout(()=>{bar.style.width=`${Math.min(m/120*100,100)}%`},100)}}
+function hideAll(){['loader','rc','ec'].forEach(id=>document.getElementById(id).classList.remove('active'))}
+function showErr(t,m){hideAll();document.getElementById('ec').classList.add('active');document.getElementById('et').textContent=t;document.getElementById('em').textContent=m;document.getElementById('sb').disabled=false}
+async function go(){
+const fn=document.getElementById('fi').value.trim().toUpperCase().replace(/\s/g,'');
+if(!fn||fn.length<3){showErr('Numero non valido','Esempio: FR1234, AZ203');return}
+hideAll();document.getElementById('sb').disabled=true;document.getElementById('loader').classList.add('active');
+try{
+const r=await fetch(`/api/flight?flightNum=${encodeURIComponent(fn)}`);
+const j=await r.json();
+hideAll();document.getElementById('sb').disabled=false;
+if(j.error){showErr('Errore API',typeof j.error==='string'?j.error:j.error.message||'Errore');return}
+const data=j.data;
+if(!data||!data.length){showErr('Volo non trovato',`"${fn}" non trovato. Prova con un volo attivo oggi.`);return}
+const f=data[0],dep=f.departure||{},arr=f.arrival||{};
+const{cls,label}=si(f);
+const badge=document.getElementById('sb2');badge.className=`status-badge ${cls}`;
+document.getElementById('st').textContent=label;document.getElementById('fd').textContent=fn;
+document.getElementById('dc').textContent=dep.iata||'—';document.getElementById('dci').textContent=dep.airport||'—';
+document.getElementById('ac2').textContent=arr.iata||'—';document.getElementById('aci').textContent=arr.airport||'—';
+document.getElementById('ds').textContent=ft(dep.scheduled);
+const ad=dep.actual||dep.estimated;
+const dael=document.getElementById('da');dael.textContent=ft(ad);
+document.getElementById('as2').textContent=ft(arr.scheduled);document.getElementById('ae').textContent=ft(arr.estimated||arr.actual);
+document.getElementById('al').textContent=(f.airline||{}).name||'—';document.getElementById('air').textContent=(f.aircraft||{}).iata||(f.aircraft||{}).icao||'—';
+document.getElementById('gt').textContent=dep.gate||'—';document.getElementById('tm').textContent=dep.terminal||'—';
+const dd=dm(dep.scheduled,ad);setDelay(dd);
+if(dd!==null&&dd>0){document.getElementById('dds').textContent=`+${dd} min`;dael.className='cell-value warn'}
+else if(dd!==null&&dd<=0){document.getElementById('dds').textContent='In orario ✓';dael.className='cell-value ok'}
+document.getElementById('rc').classList.add('active');
+}catch(e){showErr('Errore di connessione','Impossibile raggiungere il server.');document.getElementById('sb').disabled=false}
+}
+</script>
+</body>
+</html>
