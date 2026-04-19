@@ -1,39 +1,4 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FlightPulse</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0a0f;color:#e8e8f0;font-family:'Syne',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 1rem}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
-header{position:relative;z-index:1;text-align:center;padding:3rem 0 2rem;width:100%;max-width:640px}
-.logo{font-size:.7rem;font-family:'DM Mono',monospace;letter-spacing:.4em;color:#00e5ff;text-transform:uppercase;margin-bottom:.5rem;opacity:.8}
-h1{font-size:clamp(2.5rem,8vw,4rem);font-weight:800;letter-spacing:-.03em;line-height:1;background:linear-gradient(135deg,#fff 30%,#00e5ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.tagline{margin-top:.75rem;font-family:'DM Mono',monospace;font-size:.78rem;color:#555570;letter-spacing:.05em}
-main{position:relative;z-index:1;width:100%;max-width:640px;display:flex;flex-direction:column;gap:1.25rem;padding-bottom:4rem}
-.search-box{display:flex;gap:.75rem;align-items:stretch}
-.flight-input{flex:1;background:#11111a;border:1px solid #1e1e2e;border-radius:12px;padding:1.1rem 1.25rem;font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:.12em;color:#e8e8f0;outline:none;text-transform:uppercase;transition:border-color .2s,box-shadow .2s;caret-color:#00e5ff}
-.flight-input::placeholder{color:#555570;font-weight:400;letter-spacing:.05em;font-size:1rem}
-.flight-input:focus{border-color:#00e5ff;box-shadow:0 0 0 2px rgba(0,229,255,.12)}
-.search-btn{background:#00e5ff;color:#000;border:none;border-radius:12px;padding:0 1.5rem;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.08em;cursor:pointer;text-transform:uppercase;transition:background .2s,transform .1s;white-space:nowrap}
-.search-btn:hover{background:#33ebff}
-.search-btn:active{transform:scale(.97)}
-.search-btn:disabled{background:#555570;cursor:not-allowed}
-.hint{font-family:'DM Mono',monospace;font-size:.68rem;color:#555570;text-align:center;letter-spacing:.05em;line-height:1.7}
-.hint span{color:#00e5ff;opacity:.7}
-.loader{display:none;flex-direction:column;align-items:center;gap:1rem;padding:2.5rem;background:#11111a;border:1px solid #1e1e2e;border-radius:16px}
-.loader.active{display:flex}
-.loader-ring{width:44px;height:44px;border:2px solid #1e1e2e;border-top-color:#00e5ff;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loader-text{font-family:'DM Mono',monospace;font-size:.75rem;color:#555570;letter-spacing:.15em;text-transform:uppercase;animation:blink 1.5s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:.4}50%{opacity:1}}
-.result-card{display:none;background:#11111a;border:1px solid #1e1e2e;border-radius:16px;overflow:hidden;animation:slideUp .4s cubic-bezier(.16,1,.3,1)}
-.result-card.active{display:block}
-@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.status-banner{padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1e1e2e}
+.status-banner{padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1e1e2e;gap:.5rem;flex-wrap:wrap}
 .status-badge{display:flex;align-items:center;gap:.6rem;font-size:.75rem;font-family:'DM Mono',monospace;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
 .status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .status-on-time .status-dot{background:#39ff14;box-shadow:0 0 8px #39ff14}
@@ -46,6 +11,9 @@ main{position:relative;z-index:1;width:100%;max-width:640px;display:flex;flex-di
 .status-active{color:#00e5ff}
 @keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
 .fnum{font-family:'DM Mono',monospace;font-size:.8rem;color:#555570;letter-spacing:.15em}
+.source-badge{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding:.2rem .5rem;border-radius:4px;flex-shrink:0}
+.source-as{background:rgba(0,229,255,.1);color:#00e5ff;border:1px solid rgba(0,229,255,.2)}
+.source-os{background:rgba(255,190,11,.1);color:#ffbe0b;border:1px solid rgba(255,190,11,.2)}
 .flight-header{padding:1.5rem 1.5rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
 .airport-block{text-align:center;flex:1}
 .airport-code{font-size:2.5rem;font-weight:800;letter-spacing:-.02em;line-height:1}
@@ -65,6 +33,11 @@ main{position:relative;z-index:1;width:100%;max-width:640px;display:flex;flex-di
 .cell-sub{font-family:'DM Mono',monospace;font-size:.68rem;color:#555570;margin-top:.2rem}
 .delay-bar-wrap{height:3px;background:#1e1e2e;border-radius:2px;overflow:hidden;margin-top:.6rem}
 .delay-bar{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.live-section{display:none;background:#11111a;border:1px solid rgba(255,190,11,.15);border-radius:16px;overflow:hidden;animation:slideUp .4s cubic-bezier(.16,1,.3,1)}
+.live-section.active{display:block}
+.live-header{padding:.75rem 1.25rem;background:rgba(255,190,11,.05);border-bottom:1px solid rgba(255,190,11,.15);font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;color:#ffbe0b;text-transform:uppercase}
+.live-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,190,11,.1)}
+.live-cell{background:#11111a;padding:.85rem 1.25rem}
 .error-card{display:none;background:#11111a;border:1px solid rgba(255,77,109,.3);border-radius:16px;padding:1.5rem;text-align:center;animation:slideUp .3s ease}
 .error-card.active{display:block}
 .error-icon{font-size:2rem;margin-bottom:.75rem}
@@ -81,15 +54,23 @@ footer{position:relative;z-index:1;font-family:'DM Mono',monospace;font-size:.65
 </header>
 <main>
 <div class="search-box">
-<input class="flight-input" id="fi" type="text" placeholder="es. FR1234" maxlength="8" autocomplete="off" autocorrect="off" spellcheck="false"/>
-<button class="search-btn" id="sb" onclick="go()">Cerca →</button>
+<input class="flight-input" id="fi" type="text" placeholder="es. FR1234 o WMT956" maxlength="10" autocomplete="off" autocorrect="off" spellcheck="false"/>
+<button class="search-btn" id="searchBtn" onclick="go()">Cerca →</button>
 </div>
-<p class="hint">Formato: codice IATA compagnia + numero volo<br><span>AZ203 · FR1426 · VY1234 · LH456</span></p>
-<div class="loader" id="loader"><div class="loader-ring"></div><span class="loader-text">Interrogo i radar...</span></div>
+<p class="hint">Codice IATA + numero · oppure callsign completo<br><span>AZ203 · FR1426 · WMT956 · LH456</span></p>
+
+<div class="loader" id="loader">
+<div class="loader-ring"></div>
+<span class="loader-text" id="loaderText">Interrogo i radar...</span>
+</div>
+
 <div class="result-card" id="rc">
 <div class="status-banner">
 <div class="status-badge" id="sb2"><div class="status-dot"></div><span id="st">—</span></div>
+<div style="display:flex;align-items:center;gap:.6rem">
+<span class="source-badge" id="srcBadge"></span>
 <span class="fnum" id="fd">—</span>
+</div>
 </div>
 <div class="flight-header">
 <div class="airport-block"><div class="airport-code" id="dc">—</div><div class="airport-city" id="dci">—</div></div>
@@ -108,45 +89,99 @@ footer{position:relative;z-index:1;font-family:'DM Mono',monospace;font-size:.65
 <div class="data-cell full"><div class="cell-label">Ritardo</div><div class="cell-value" id="dv">—</div><div class="delay-bar-wrap"><div class="delay-bar" id="db2"></div></div></div>
 </div>
 </div>
+
+<div class="live-section" id="liveSection">
+<div class="live-header">📡 Dati Live ADS-B · OpenSky Network</div>
+<div class="live-grid">
+<div class="live-cell"><div class="cell-label">Quota</div><div class="cell-value hl" id="lvAlt">—</div></div>
+<div class="live-cell"><div class="cell-label">Velocità</div><div class="cell-value hl" id="lvSpd">—</div></div>
+<div class="live-cell"><div class="cell-label">Rotta</div><div class="cell-value" id="lvHdg">—</div></div>
+<div class="live-cell"><div class="cell-label">A terra</div><div class="cell-value" id="lvGnd">—</div></div>
+<div class="live-cell full"><div class="cell-label">Posizione GPS</div><div class="cell-value" id="lvPos">—</div><div class="cell-sub" id="lvMap"></div></div>
+</div>
+</div>
+
 <div class="error-card" id="ec"><div class="error-icon">⚠</div><div class="error-title" id="et">Errore</div><div class="error-msg" id="em">—</div></div>
 </main>
-<footer>FlightPulse · dati in tempo reale</footer>
+<footer>FlightPulse · AviationStack + OpenSky Network</footer>
 <script>
 document.getElementById('fi').addEventListener('keydown',e=>{if(e.key==='Enter')go()});
 function ft(s){if(!s)return'—';try{return new Date(s).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})}catch{return'—'}}
 function dm(a,b){if(!a||!b)return null;try{return Math.round((new Date(b)-new Date(a))/60000)}catch{return null}}
-function si(f){const s=(f.flight_status||'').toLowerCase();if(s==='landed')return{cls:'status-on-time',label:'ATTERRATO'};if(s==='active'||s==='en-route')return{cls:'status-active',label:'IN VOLO'};if(s==='cancelled')return{cls:'status-cancelled',label:'CANCELLATO'};if(s==='delayed')return{cls:'status-delayed',label:'IN RITARDO'};if(s==='scheduled'){const d=dm(f.departure?.scheduled,f.departure?.estimated);return d&&d>0?{cls:'status-delayed',label:'IN RITARDO'}:{cls:'status-on-time',label:'PUNTUALE'}}return{cls:'status-on-time',label:s.toUpperCase()||'SCONOSCIUTO'}}
-function setDelay(m){const el=document.getElementById('dv'),bar=document.getElementById('db2');if(m===null||isNaN(m)){el.textContent='—';return}if(m<=0){el.textContent='Nessun ritardo';el.className='cell-value ok';bar.style.width='0%';bar.style.background='#39ff14'}else{el.textContent=`+${m} min`;el.className=`cell-value ${m<30?'warn':'danger'}`;bar.style.background=m<30?'#ffbe0b':'#ff4d6d';bar.style.width='0%';setTimeout(()=>{bar.style.width=`${Math.min(m/120*100,100)}%`},100)}}
-function hideAll(){['loader','rc','ec'].forEach(id=>document.getElementById(id).classList.remove('active'))}
-function showErr(t,m){hideAll();document.getElementById('ec').classList.add('active');document.getElementById('et').textContent=t;document.getElementById('em').textContent=m;document.getElementById('sb').disabled=false}
+function si(f){
+const s=(f.flight_status||'').toLowerCase();
+if(s==='landed')return{cls:'status-on-time',label:'ATTERRATO'};
+if(s==='active'||s==='en-route')return{cls:'status-active',label:'IN VOLO'};
+if(s==='cancelled')return{cls:'status-cancelled',label:'CANCELLATO'};
+if(s==='delayed')return{cls:'status-delayed',label:'IN RITARDO'};
+if(s==='scheduled'){const d=dm(f.departure?.scheduled,f.departure?.estimated);return d&&d>0?{cls:'status-delayed',label:'IN RITARDO'}:{cls:'status-on-time',label:'PUNTUALE'}}
+return{cls:'status-on-time',label:s.toUpperCase()||'SCONOSCIUTO'};
+}
+function setDelay(m){
+const el=document.getElementById('dv'),bar=document.getElementById('db2');
+if(m===null||isNaN(m)){el.textContent='—';return}
+if(m<=0){el.textContent='Nessun ritardo';el.className='cell-value ok';bar.style.width='0%';bar.style.background='#39ff14'}
+else{el.textContent=`+${m} min`;el.className=`cell-value ${m<30?'warn':'danger'}`;bar.style.background=m<30?'#ffbe0b':'#ff4d6d';bar.style.width='0%';setTimeout(()=>{bar.style.width=`${Math.min(m/120*100,100)}%`},100)}
+}
+function hideAll(){['loader','rc','liveSection','ec'].forEach(id=>document.getElementById(id).classList.remove('active'))}
+function showErr(t,m){hideAll();document.getElementById('ec').classList.add('active');document.getElementById('et').textContent=t;document.getElementById('em').textContent=m;document.getElementById('searchBtn').disabled=false}
+function renderLive(live){
+if(!live)return;
+document.getElementById('liveSection').classList.add('active');
+document.getElementById('lvAlt').textContent=live.altitude_ft?`${live.altitude_ft.toLocaleString()} ft`:(live.altitude?`${live.altitude} m`:'—');
+document.getElementById('lvSpd').textContent=live.speed_kmh?`${live.speed_kmh} km/h`:'—';
+document.getElementById('lvHdg').textContent=live.heading?`${live.heading}°`:'—';
+document.getElementById('lvGnd').textContent=live.on_ground?'Sì — a terra':'No — in volo';
+if(live.latitude&&live.longitude){
+document.getElementById('lvPos').textContent=`${live.latitude.toFixed(4)}° · ${live.longitude.toFixed(4)}°`;
+document.getElementById('lvMap').innerHTML=`<a href="https://maps.google.com/?q=${live.latitude},${live.longitude}" target="_blank" style="color:#00e5ff;text-decoration:none;">↗ Apri su Google Maps</a>`;
+}
+}
 async function go(){
 const fn=document.getElementById('fi').value.trim().toUpperCase().replace(/\s/g,'');
-if(!fn||fn.length<3){showErr('Numero non valido','Esempio: FR1234, AZ203');return}
-hideAll();document.getElementById('sb').disabled=true;document.getElementById('loader').classList.add('active');
+if(!fn||fn.length<3){showErr('Numero non valido','Esempio: FR1234, AZ203, WMT956');return}
+hideAll();
+document.getElementById('searchBtn').disabled=true;
+document.getElementById('loader').classList.add('active');
+document.getElementById('loaderText').textContent='Interrogo i radar...';
 try{
 const r=await fetch(`/api/flight?flightNum=${encodeURIComponent(fn)}`);
 const j=await r.json();
-hideAll();document.getElementById('sb').disabled=false;
+hideAll();
+document.getElementById('searchBtn').disabled=false;
 if(j.error){showErr('Errore API',typeof j.error==='string'?j.error:j.error.message||'Errore');return}
 const data=j.data;
-if(!data||!data.length){showErr('Volo non trovato',`"${fn}" non trovato. Prova con un volo attivo oggi.`);return}
+if(!data||!data.length){showErr('Volo non trovato',j.message||`"${fn}" non trovato.\nVerifica il callsign o prova quando il volo è attivo.`);return}
 const f=data[0],dep=f.departure||{},arr=f.arrival||{};
+const srcBadge=document.getElementById('srcBadge');
+if(j.source==='opensky'){srcBadge.textContent='OpenSky';srcBadge.className='source-badge source-os'}
+else{srcBadge.textContent='AviationStack';srcBadge.className='source-badge source-as'}
 const{cls,label}=si(f);
-const badge=document.getElementById('sb2');badge.className=`status-badge ${cls}`;
-document.getElementById('st').textContent=label;document.getElementById('fd').textContent=fn;
-document.getElementById('dc').textContent=dep.iata||'—';document.getElementById('dci').textContent=dep.airport||'—';
-document.getElementById('ac2').textContent=arr.iata||'—';document.getElementById('aci').textContent=arr.airport||'—';
+document.getElementById('sb2').className=`status-badge ${cls}`;
+document.getElementById('st').textContent=label;
+document.getElementById('fd').textContent=fn;
+document.getElementById('dc').textContent=dep.iata||'—';
+document.getElementById('dci').textContent=dep.airport||'—';
+document.getElementById('ac2').textContent=arr.iata||'—';
+document.getElementById('aci').textContent=arr.airport||'—';
 document.getElementById('ds').textContent=ft(dep.scheduled);
 const ad=dep.actual||dep.estimated;
 const dael=document.getElementById('da');dael.textContent=ft(ad);
-document.getElementById('as2').textContent=ft(arr.scheduled);document.getElementById('ae').textContent=ft(arr.estimated||arr.actual);
-document.getElementById('al').textContent=(f.airline||{}).name||'—';document.getElementById('air').textContent=(f.aircraft||{}).iata||(f.aircraft||{}).icao||'—';
-document.getElementById('gt').textContent=dep.gate||'—';document.getElementById('tm').textContent=dep.terminal||'—';
+document.getElementById('as2').textContent=ft(arr.scheduled);
+document.getElementById('ae').textContent=ft(arr.estimated||arr.actual);
+document.getElementById('al').textContent=(f.airline||{}).name||fn;
+document.getElementById('air').textContent=(f.aircraft||{}).iata||(f.aircraft||{}).icao||'—';
+document.getElementById('gt').textContent=dep.gate||'—';
+document.getElementById('tm').textContent=dep.terminal||'—';
 const dd=dm(dep.scheduled,ad);setDelay(dd);
 if(dd!==null&&dd>0){document.getElementById('dds').textContent=`+${dd} min`;dael.className='cell-value warn'}
 else if(dd!==null&&dd<=0){document.getElementById('dds').textContent='In orario ✓';dael.className='cell-value ok'}
 document.getElementById('rc').classList.add('active');
-}catch(e){showErr('Errore di connessione','Impossibile raggiungere il server.');document.getElementById('sb').disabled=false}
+if(j.source==='opensky'&&f.live)renderLive(f.live);
+}catch(e){
+showErr('Errore di connessione','Impossibile raggiungere il server. Riprova tra qualche secondo.');
+document.getElementById('searchBtn').disabled=false;
+}
 }
 </script>
 </body>
